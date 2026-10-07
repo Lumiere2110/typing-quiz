@@ -215,7 +215,14 @@
   }
   $('#game-ready').onclick = begin;
 
-  function focusInput() { const i = $('#hidden-input'); i.value = ''; i.focus({ preventScroll: true }); }
+  // スマホなどタッチ端末だけ隠し入力欄にフォーカスしてキーボードを出す。
+  // PC ではフォーカスしない（IME が文字を変換し始めて入力が乱れるのを防ぐ）
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+  function focusInput() {
+    const i = $('#hidden-input'); i.value = '';
+    if (isTouch) i.focus({ preventScroll: true });
+    else if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  }
   $('#screen-game').addEventListener('click', e => { if (!e.target.closest('button')) focusInput(); });
 
   function nextQuestion() {
@@ -274,20 +281,52 @@
 
   function onKey(ch) {
     if (!game) return;
-    if (game.state === 'ready') { if (ch === ' ') begin(); return; }
+    if (game.state === 'ready') { begin(); return; } // どのキーでもスタート
     if (game.state !== 'playing') return;
     const c = game.cur;
-    if (c.typer.input(ch)) {
-      c.keys++; game.keys++;
-      beep(880, 0.04, 'square', 0.02);
-      renderAnswer();
-      if (c.typer.done) finishQuestion('ok');
-    } else {
-      c.miss++; game.miss++;
-      $('#hud-miss').textContent = game.miss;
-      beep(160, 0.08, 'sawtooth', 0.04);
-      const box = $('.answer-box'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
-      if (game.s.misslimit && c.miss > game.s.misslimit) finishQuestion('misslimit');
+    if (c.typer.input(ch)) hit();
+    else if (ch === ' ') return; // 不要なスペースはミスにしない
+    else miss();
+  }
+  function hit() {
+    const c = game.cur;
+    c.keys++; game.keys++;
+    beep(880, 0.04, 'square', 0.02);
+    renderAnswer();
+    if (c.typer.done) finishQuestion('ok');
+  }
+  function miss() {
+    const c = game.cur;
+    c.miss++; game.miss++;
+    $('#hud-miss').textContent = game.miss;
+    beep(160, 0.08, 'sawtooth', 0.04);
+    const box = $('.answer-box'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+    if (game.s.misslimit && c.miss > game.s.misslimit) finishQuestion('misslimit');
+  }
+
+  // 文字列での入力（スマホの日本語キーボードや IME の確定文字）。かな・答えの直接入力も受け付ける
+  const norm = s => Romaji.toHiragana(s.normalize('NFKC').toLowerCase()).replace(/[\s・･]/g, '');
+  function onText(str) {
+    if (!game || !str) return;
+    if (game.state === 'ready') { begin(); return; }
+    if (game.state !== 'playing') return;
+    const c = game.cur;
+    const text = norm(str);
+    if (!text) return;
+    // 答えそのもの（漢字など）や残りの読みをまとめて入力した場合は正解
+    if (text === norm(c.q.answer) || text === norm(c.typer.kana.slice(c.typer.pos))) {
+      const rest = c.typer.kana.length - c.typer.pos;
+      c.typer.typed += c.typer.kana.slice(c.typer.pos);
+      c.typer.pos = c.typer.kana.length; c.typer.buf = '';
+      c.keys += rest - 1; game.keys += rest - 1;
+      hit();
+      return;
+    }
+    for (const ch of text) {
+      if (game.state !== 'playing') return;
+      if (/[\x20-\x7e]/.test(ch)) onKey(ch);
+      else if (c.typer.inputKana(ch)) hit();
+      else miss();
     }
   }
 
@@ -332,22 +371,46 @@
   $('#btn-quit').onclick = () => endGame('quit');
 
   // キー入力（物理キーボードは keydown、スマホなどは input イベントで受け取る）
+  // 日本語入力（IME）がオンでも、押された物理キー（e.code）から英字を判定する
+  const CODE_MAP = { Minus: '-', NumpadSubtract: '-', Period: '.', NumpadDecimal: '.', Comma: ',', Slash: '/', Space: ' ', Quote: "'" };
+  function keyFromEvent(e) {
+    if (e.key && e.key.length === 1) {
+      const k = e.key.normalize('NFKC').toLowerCase();
+      if (/^[\x20-\x7e]$/.test(k)) return k;
+    }
+    if (e.key === 'Process' || e.key === 'Unidentified' || (e.key && e.key.length === 1)) {
+      let m;
+      if ((m = /^Key([A-Z])$/.exec(e.code))) return m[1].toLowerCase();
+      if ((m = /^(?:Digit|Numpad)(\d)$/.exec(e.code))) return m[1];
+      if (CODE_MAP[e.code]) return CODE_MAP[e.code];
+    }
+    return null;
+  }
+  let keyDuringComposition = false;
   document.addEventListener('keydown', e => {
     if (!$('#screen-game').classList.contains('active') || !game) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Escape') { e.preventDefault(); skip(); return; }
-    if (e.key === 'Process' || e.isComposing) { $('#ime-warn').hidden = false; return; }
-    if (e.key.length === 1) {
-      e.preventDefault();
-      $('#ime-warn').hidden = true;
-      onKey(e.key);
-    }
+    if (e.key === 'Enter' && game.state === 'ready') { e.preventDefault(); begin(); return; }
+    const ch = keyFromEvent(e);
+    if (ch === null) return;
+    e.preventDefault();
+    if (e.isComposing || e.key === 'Process') keyDuringComposition = true;
+    onKey(ch);
   });
-  $('#hidden-input').addEventListener('input', e => {
-    const v = e.target.value; e.target.value = '';
-    if (!$('#screen-game').classList.contains('active')) return;
-    if (/[^\x20-\x7e]/.test(v)) { $('#ime-warn').hidden = false; return; }
-    for (const ch of v) onKey(ch);
+  const hiddenInput = $('#hidden-input');
+  let composing = false;
+  hiddenInput.addEventListener('compositionstart', () => { composing = true; keyDuringComposition = false; });
+  hiddenInput.addEventListener('compositionend', e => {
+    composing = false;
+    const v = e.data || hiddenInput.value; hiddenInput.value = '';
+    if (keyDuringComposition) { keyDuringComposition = false; return; } // keydown で処理済み
+    if ($('#screen-game').classList.contains('active')) onText(v);
+  });
+  hiddenInput.addEventListener('input', e => {
+    if (composing || e.isComposing) return;
+    const v = hiddenInput.value; hiddenInput.value = '';
+    if ($('#screen-game').classList.contains('active')) onText(v);
   });
 
   function endGame(reason, toResult = true) {

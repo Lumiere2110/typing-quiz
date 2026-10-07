@@ -10,13 +10,13 @@
     'ま':['ma'],'み':['mi'],'む':['mu'],'め':['me'],'も':['mo'],
     'や':['ya'],'ゆ':['yu'],'よ':['yo'],
     'ら':['ra'],'り':['ri'],'る':['ru'],'れ':['re'],'ろ':['ro'],
-    'わ':['wa'],'を':['wo'],
+    'わ':['wa'],'を':['wo','o'],
     'が':['ga'],'ぎ':['gi'],'ぐ':['gu'],'げ':['ge'],'ご':['go'],
     'ざ':['za'],'じ':['ji','zi'],'ず':['zu'],'ぜ':['ze'],'ぞ':['zo'],
-    'だ':['da'],'ぢ':['di'],'づ':['du'],'で':['de'],'ど':['do'],
+    'だ':['da'],'ぢ':['di','ji','zi'],'づ':['du','zu'],'で':['de'],'ど':['do'],
     'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
     'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
-    'ゔ':['vu'],
+    'ゔ':['vu','bu'],
     'ぁ':['xa','la'],'ぃ':['xi','li'],'ぅ':['xu','lu'],'ぇ':['xe','le'],'ぉ':['xo','lo'],
     'ゃ':['xya','lya'],'ゅ':['xyu','lyu'],'ょ':['xyo','lyo'],'ゎ':['xwa','lwa'],
     'っ':['xtu','ltu','xtsu','ltsu'],
@@ -32,12 +32,12 @@
   add('しゃ',['sha','sya']); add('しゅ',['shu','syu']); add('しょ',['sho','syo']); add('しぇ',['she','sye']);
   add('ちゃ',['cha','tya','cya']); add('ちゅ',['chu','tyu','cyu']); add('ちょ',['cho','tyo','cyo']); add('ちぇ',['che','tye','cye']);
   add('じゃ',['ja','zya','jya']); add('じゅ',['ju','zyu','jyu']); add('じょ',['jo','zyo','jyo']); add('じぇ',['je','zye','jye']);
-  add('ぢゃ',['dya']); add('ぢゅ',['dyu']); add('ぢょ',['dyo']);
-  add('ふぁ',['fa']); add('ふぃ',['fi']); add('ふぇ',['fe']); add('ふぉ',['fo']); add('ふゅ',['fyu']);
-  add('てぃ',['thi']); add('でぃ',['dhi']); add('てゅ',['thu']); add('でゅ',['dhu']);
+  add('ぢゃ',['dya','ja','zya','jya']); add('ぢゅ',['dyu','ju','zyu','jyu']); add('ぢょ',['dyo','jo','zyo','jyo']);
+  add('ふぁ',['fa','fwa','hwa']); add('ふぃ',['fi','fyi','hwi']); add('ふぇ',['fe','fye','hwe']); add('ふぉ',['fo','fwo','hwo']); add('ふゅ',['fyu']);
+  add('てぃ',['thi','ti']); add('でぃ',['dhi','di']); add('てゅ',['thu','tyu']); add('でゅ',['dhu','dyu']);
   add('とぅ',['twu']); add('どぅ',['dwu']);
-  add('うぃ',['wi','whi']); add('うぇ',['we','whe']); add('うぉ',['who']);
-  add('ゔぁ',['va']); add('ゔぃ',['vi']); add('ゔぇ',['ve']); add('ゔぉ',['vo']);
+  add('うぃ',['wi','whi']); add('うぇ',['we','whe']); add('うぉ',['who','wo']);
+  add('ゔぁ',['va','ba']); add('ゔぃ',['vi','bi']); add('ゔぇ',['ve','be']); add('ゔぉ',['vo','bo']);
   add('つぁ',['tsa']); add('つぃ',['tsi']); add('つぇ',['tse']); add('つぉ',['tso']);
   add('くぁ',['qa','kwa']); add('くぃ',['qi']); add('くぇ',['qe']); add('くぉ',['qo','kwo']);
   add('ぐぁ',['gwa']); add('すぃ',['swi']); add('ずぃ',['zwi']);
@@ -53,18 +53,25 @@
     if (ch === undefined) return out;
     if (/[a-z0-9.,\-+!?'/:;()&% ]/.test(ch)) return [{ len: 1, roms: [ch] }];
     if (ch === 'ん') {
-      const roms = ['nn', 'xn', "n'"];
+      // 判定を優しくするため、後ろの文字に関係なく n 1回でも受け付ける（kinen → きんえん など）
       const next = kana[i + 1];
-      if (next !== undefined) {
-        const nextRoms = candidates(kana, i + 1).flatMap(c => c.roms);
-        if (nextRoms.length && nextRoms.every(r => !/^[aiueony']/.test(r))) roms.unshift('n');
-      }
+      const nextRoms = next === undefined ? [] : candidates(kana, i + 1).flatMap(c => c.roms);
+      const nFirst = next === undefined || nextRoms.every(r => !/^[aiueony']/.test(r));
+      return [{ len: 1, roms: nFirst ? ['n', 'nn', 'xn', "n'"] : ['nn', 'n', 'xn', "n'"] }];
+    }
+    if (ch === 'ー') {
+      // 長音は「-」のほか、直前の母音でも入力できる（chiitaa → ちーたー）
+      const roms = ['-'];
+      const prev = kana[i - 1];
+      const vowel = { 'ゃ': 'a', 'ゅ': 'u', 'ょ': 'o' }[prev] || ((ONE[prev] || [''])[0].match(/[aiueo]$/) || [])[0];
+      if (vowel) roms.push(vowel);
       return [{ len: 1, roms }];
     }
     if (ch === 'っ') {
       const next = candidates(kana, i + 1);
       for (const c of next) {
         const dbl = c.roms.filter(r => /^[bcdfghjklmpqrstvwxyz]/.test(r) && !/^n/.test(r)).map(r => r[0] + r);
+        c.roms.filter(r => r.startsWith('ch')).forEach(r => dbl.push('t' + r)); // matcha など
         if (dbl.length) out.push({ len: 1 + c.len, roms: dbl });
       }
       out.push({ len: 1, roms: ONE['っ'] });
@@ -109,7 +116,14 @@
       this.buf = nb; this.typed += key;
       const exact = cands.find(c => c.roms.includes(nb));
       const longer = cands.some(c => c.roms.some(r => r.length > nb.length && r.startsWith(nb)));
-      if (exact && !longer) { this.pos += exact.len; this.buf = ''; }
+      // 最後の文字は、完成した時点で確定する（末尾の「ん」は n 1回でよい）
+      if (exact && (!longer || this.pos + exact.len >= this.kana.length)) { this.pos += exact.len; this.buf = ''; }
+      return true;
+    }
+    // かなを直接入力（スマホの日本語キーボードなど）。一致すれば true
+    inputKana(ch) {
+      if (this.done || this.kana[this.pos] !== ch) return false;
+      this.pos++; this.buf = ''; this.typed += ch;
       return true;
     }
     // 入力済みかなの文字数

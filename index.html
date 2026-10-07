@@ -155,8 +155,8 @@
     </header>
     <div class="container game">
       <div id="game-ready" class="ready">
-        <p>スペースキー（またはタップ）でスタート</p>
-        <p class="note">半角英数入力（IMEオフ）でタイプしてください。Esc でスキップ。</p>
+        <p>何かキーを押す（またはタップ）とスタート</p>
+        <p class="note">ローマ字でタイプしてください（日本語入力がオンのままでもOK）。Esc でスキップ。</p>
       </div>
       <div id="game-main" hidden>
         <div class="qtimer"><div id="qtimer-bar"></div></div>
@@ -172,7 +172,6 @@
           <button class="btn" id="btn-hint" hidden>💡 ヒント（1文字）</button>
           <button class="btn" id="btn-skip">⏭ スキップ（Esc）</button>
         </div>
-        <p id="ime-warn" class="warn" hidden>日本語入力（IME）がオンになっています。半角英数に切り替えてください。</p>
       </div>
     </div>
   </section>
@@ -239,7 +238,8 @@
     <ul>
       <li>表示された問題の答えを、ローマ字でタイピングして答えます。</li>
       <li><b>タイピング形式</b>：答えとローマ字ガイドが表示されます。<b>クイズ形式</b>：答えは伏せられ、文字数だけが表示されます。正しいキーを打つと1文字ずつ現れます。</li>
-      <li>「shi / si」「tsu / tu」「n / nn」など、いろいろなローマ字表記に対応しています。英字・数字はそのまま入力します。</li>
+      <li>「shi / si」「tsu / tu」「n / nn」「chiitaa（ちーたー）」「matcha（まっちゃ）」など、いろいろなローマ字表記に対応しています。英字・数字はそのまま入力します。</li>
+      <li>日本語入力（IME）がオンのままでも、全角英字でも入力できます。スマホではかなを直接入力することもできます。</li>
       <li><kbd>Esc</kbd> でスキップできます（不正解扱い）。</li>
       <li>問題一覧で ★（お気に入り）や ⚠（苦手）に登録すると、カスタムモードでその問題だけを練習できます。</li>
       <li>出題回数・正解数・設定はこのブラウザに保存されます。</li>
