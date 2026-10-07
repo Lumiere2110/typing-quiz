@@ -262,9 +262,13 @@
     game.cur.time += dt;
     if (game.s.time) {
       const left = Math.max(0, game.s.time - game.elapsed);
-      $('#hud-time').textContent = left.toFixed(1);
+      // 制限時間が0になっても、今の問題は正解するか回答時間が切れるまで続ける
+      if (left <= 0 && !game.overtime) {
+        game.overtime = true;
+        $('#q-lives').textContent = '⏰ タイムアップ！この問題がラスト';
+      }
+      $('#hud-time').textContent = game.overtime ? 'ラスト' : left.toFixed(1);
       $('#hud-time').classList.toggle('danger', left <= 10);
-      if (left <= 0) return endGame('time');
     } else {
       $('#hud-time').textContent = game.elapsed.toFixed(1);
     }
@@ -356,7 +360,9 @@
     const livesOut = game.s.lives >= 0 && game.wrong > game.s.lives;
     setTimeout(() => {
       if (!game || game.state !== 'feedback') return;
-      if (livesOut) endGame('lives'); else nextQuestion();
+      if (livesOut) endGame('lives');
+      else if (game.overtime) endGame('time');
+      else nextQuestion();
     }, ok ? 550 : 1400);
   }
 
