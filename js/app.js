@@ -47,7 +47,7 @@
 
   // ---------- 設定 ----------
   const defaultSettings = {
-    mode: 'normal', style: 'typing', time: 120, qtime: 20, lives: -1, misslimit: 0, count: 20, sound: 1,
+    mode: 'normal', time: 120, qtime: 20, lives: -1, misslimit: 0, count: 20, sound: 1,
     genres: QUESTIONS.map(q => q.category + '/' + q.genre).filter((v, i, a) => a.indexOf(v) === i),
     diff: [1, 2, 3], len: [1, 2, 3], srcFav: true, srcWeak: true, srcAuto: false, autoRate: 70,
   };
@@ -85,7 +85,6 @@
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === settings.mode));
     $('#normal-options').hidden = settings.mode !== 'normal';
     $('#custom-options').hidden = settings.mode !== 'custom';
-    $$('input[name=style]').forEach(r => r.checked = r.value === settings.style);
     $('#opt-time').value = settings.time; $('#opt-qtime').value = settings.qtime;
     $('#opt-lives').value = settings.lives; $('#opt-misslimit').value = settings.misslimit;
     $('#opt-count').value = settings.count; $('#opt-sound').value = settings.sound;
@@ -100,7 +99,6 @@
   }
 
   function readSettings() {
-    settings.style = $('input[name=style]:checked').value;
     settings.time = +$('#opt-time').value; settings.qtime = +$('#opt-qtime').value;
     settings.lives = +$('#opt-lives').value; settings.misslimit = +$('#opt-misslimit').value;
     settings.count = +$('#opt-count').value; settings.sound = +$('#opt-sound').value;
@@ -208,7 +206,6 @@
     $('#hud-time').classList.remove('danger');
     $('#hud-num').textContent = `0/${queue.length}`;
     ['#hud-correct', '#hud-wrong', '#hud-miss'].forEach(s => $(s).textContent = 0);
-    $('#btn-hint').hidden = game.s.style !== 'quiz';
     focusInput();
   }
 
@@ -249,7 +246,7 @@
   function renderAnswer(reveal) {
     const { q, typer, hint } = game.cur;
     const kana = typer.kana;
-    const quiz = game.s.style === 'quiz' && !reveal;
+    const quiz = !reveal; // 答えは正解・不正解が決まるまで伏せる
     $('#q-answer').textContent = quiz ? '？？？' : q.answer;
     const shown = Math.max(typer.kanaDone, hint);
     const kanaHtml = quiz
@@ -453,7 +450,7 @@
     const fastest = okTimes.length ? Math.min(...okTimes).toFixed(1) : '-';
     const score = Math.round(correct * 100 + kpm * 2 - miss * 5);
     const reasons = { time: '⏰ 制限時間終了！', lives: '💥 ミスの上限に達しました', done: '🎉 全問終了！', quit: '中断しました' };
-    $('#result-reason').textContent = reasons[g.reason] + `（${g.s.mode === 'custom' ? 'カスタム' : '通常'}モード・${g.s.style === 'quiz' ? 'クイズ' : 'タイピング'}形式）`;
+    $('#result-reason').textContent = reasons[g.reason] + `（${g.s.mode === 'custom' ? 'カスタム' : '通常'}モード）`;
 
     const stat = (label, val, unit = '', main = false) => `<div class="stat ${main ? 'main' : ''}"><small>${label}</small><b>${val}<span>${unit}</span></b></div>`;
     $('#result-stats').innerHTML = [

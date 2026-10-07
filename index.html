@@ -6,7 +6,7 @@
   <title>タイピングクイズ</title>
   <meta name="description" content="数学・物理・化学・情報・英語・国語・地理・法学・一般常識・雑学・漫画・アニメの一問一答をタイピングで答えるゲーム">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌨️</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
   <input id="hidden-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-hidden="true">
@@ -37,14 +37,6 @@
       <div class="tabs" role="tablist">
         <button class="tab active" data-mode="normal">通常モード</button>
         <button class="tab" data-mode="custom">カスタムモード</button>
-      </div>
-
-      <div class="panel">
-        <h3>出題形式</h3>
-        <div class="seg" id="opt-style">
-          <label><input type="radio" name="style" value="typing" checked><span>タイピング<small>答えを見ながら入力</small></span></label>
-          <label><input type="radio" name="style" value="quiz"><span>クイズ<small>答えを隠して入力</small></span></label>
-        </div>
       </div>
 
       <div class="panel grid2">
@@ -169,7 +161,7 @@
         </div>
         <div id="feedback" class="feedback"></div>
         <div class="game-actions">
-          <button class="btn" id="btn-hint" hidden>💡 ヒント（1文字）</button>
+          <button class="btn" id="btn-hint">💡 ヒント（1文字）</button>
           <button class="btn" id="btn-skip">⏭ スキップ（Esc）</button>
         </div>
       </div>
@@ -237,7 +229,7 @@
     <h2>遊び方</h2>
     <ul>
       <li>表示された問題の答えを、ローマ字でタイピングして答えます。</li>
-      <li><b>タイピング形式</b>：答えとローマ字ガイドが表示されます。<b>クイズ形式</b>：答えは伏せられ、文字数だけが表示されます。正しいキーを打つと1文字ずつ現れます。</li>
+      <li>答えは伏せられ、文字数（○）だけが表示されます。正しいキーを打つと1文字ずつ現れます。わからないときは「ヒント」で1文字ずつ見られます。</li>
       <li>「shi / si」「tsu / tu」「n / nn」「chiitaa（ちーたー）」「matcha（まっちゃ）」など、いろいろなローマ字表記に対応しています。英字・数字はそのまま入力します。</li>
       <li>日本語入力（IME）がオンのままでも、全角英字でも入力できます。スマホではかなを直接入力することもできます。</li>
       <li><kbd>Esc</kbd> でスキップできます（不正解扱い）。</li>
@@ -247,8 +239,8 @@
     <form method="dialog"><button class="btn primary">閉じる</button></form>
   </dialog>
 
-  <script src="js/romaji.js?v=5"></script>
-  <script src="js/data.js?v=5"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/romaji.js?v=6"></script>
+  <script src="js/data.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>
