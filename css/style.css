@@ -190,13 +190,16 @@ select, input[type=search] {
 .table .q { color: var(--muted); min-width: 200px; }
 .res-ok { color: var(--ok); font-weight: bold; white-space: nowrap; }
 .res-ng { color: var(--ng); font-weight: bold; white-space: nowrap; }
-.mark { border: none; background: none; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; opacity: .3; filter: grayscale(1); }
+.mark { border: none; background: none; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; opacity: .5; filter: grayscale(1); }
+.mark:hover { opacity: .8; }
 .mark.on { opacity: 1; filter: none; }
 .marks { white-space: nowrap; }
 .list-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
 #screen-list .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
 .filters { display: grid; grid-template-columns: 2fr repeat(5, 1fr); gap: 8px; }
 .list-info { display: flex; justify-content: space-between; align-items: center; margin: 0 4px 8px; color: var(--muted); }
+.table td small { white-space: nowrap; }
+.table .q small, .table .ans small { white-space: normal; }
 .diff { white-space: nowrap; color: var(--warn); letter-spacing: -.1em; }
 
 dialog {
