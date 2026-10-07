@@ -52,6 +52,12 @@
     diff: [1, 2, 3], len: [1, 2, 3], srcFav: true, srcWeak: true, srcAuto: false, autoRate: 70,
   };
   let settings = Object.assign({}, defaultSettings, store.get('settings', {}));
+  // 新しく追加されたジャンルは、保存済みの設定があっても最初は選択状態にする
+  {
+    const known = new Set(settings.knownGenres || settings.genres);
+    defaultSettings.genres.forEach(g => { if (!known.has(g) && !settings.genres.includes(g)) settings.genres.push(g); });
+    settings.knownGenres = defaultSettings.genres.slice();
+  }
 
   function buildCatTree() {
     $('#cat-tree').innerHTML = CATEGORIES.map(c => {

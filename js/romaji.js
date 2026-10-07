@@ -36,7 +36,7 @@
   add('ふぁ',['fa','fwa','hwa']); add('ふぃ',['fi','fyi','hwi']); add('ふぇ',['fe','fye','hwe']); add('ふぉ',['fo','fwo','hwo']); add('ふゅ',['fyu']);
   add('てぃ',['thi','ti']); add('でぃ',['dhi','di']); add('てゅ',['thu','tyu']); add('でゅ',['dhu','dyu']);
   add('とぅ',['twu']); add('どぅ',['dwu']);
-  add('うぃ',['wi','whi']); add('うぇ',['we','whe']); add('うぉ',['who','wo']);
+  add('いぇ',['ye']); add('うぃ',['wi','whi']); add('うぇ',['we','whe']); add('うぉ',['who','wo']);
   add('ゔぁ',['va','ba']); add('ゔぃ',['vi','bi']); add('ゔぇ',['ve','be']); add('ゔぉ',['vo','bo']);
   add('つぁ',['tsa']); add('つぃ',['tsi']); add('つぇ',['tse']); add('つぉ',['tso']);
   add('くぁ',['qa','kwa']); add('くぃ',['qi']); add('くぇ',['qe']); add('くぉ',['qo','kwo']);
